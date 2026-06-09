@@ -1,0 +1,77 @@
+# FPS Prototype - Setup Guide
+
+## After opening project in Unity:
+
+### 1. Enable New Input System
+- Edit > Project Settings > Player > Active Input Handling: "Both" or "Input System Package (New)"
+
+### 2. Create Input Actions Asset
+- Assets > Create > Input Actions > Name: "PlayerInputActions"
+- Add Action Map: "Player"
+- Add Actions:
+  - Move (Value, Vector2, WASD composite)
+  - Look (Value, Vector2, Mouse delta)
+  - Jump (Button, Space)
+  - Run (Button, Left Shift)
+  - Attack (Button, Left Mouse)
+  - Melee (Button, Right Mouse)
+  - CycleWeapon (Value, Axis, Scroll)
+- Add component to Player: PlayerInput, WeaponManager, PlayerController
+
+### 3. Create Main Scene
+- Create > Scene > "Main.unity"
+- Add objects:
+
+#### Camera Setup (Main Camera)
+- Add "Player" tag
+- Position: (0, 1, 0)
+- Add Components:
+  - PlayerInput (use PlayerInputActions)
+  - InputManager
+  - PlayerController
+  - WeaponManager
+  - CharacterController (height: 2, center: (0, 1, 0))
+
+#### Ground
+- Create Empty > "World"
+- Add WorldGenerator component
+
+#### UI Canvas
+- Create > UI > Canvas
+- Render Mode: Screen Space - Overlay
+- Add UI > Text - Top Right (Weapon Name)
+- Add UI > Image - Center (Crosshair)
+
+### 4. Create Weapon Assets
+- Assets > Create > Weapons > WeaponData:
+  - "Pistol" (Ranged, damage: 10, range: 100, attackRate: 2)
+  - "Knife" (Melee, damage: 20, range: 2, attackRate: 1)
+
+### 5. Create Weapon Prefabs
+- Create Empty > "RangedWeapon"
+  - Add RangedWeapon component
+  - Add LineRenderer component (positions: 2, width: 0.05)
+  - Drag "Pistol" data to component
+- Create Empty > "MeleeWeapon"
+  - Add MeleeWeapon component
+  - Create Cube child as visual (scale: 0.1, 0.3, 0.05)
+  - Drag "Knife" data to component
+
+### 6. Assign Weapon Holder
+- Create empty child under camera: "WeaponHolder"
+- Assign to WeaponManager.weaponHolder
+
+### 7. Build Settings
+- File > Build Settings
+- Add "Main.unity" to scenes list
+- Or use BuildScript from Tools menu
+
+## Controls
+- WASD: Move
+- Mouse: Look
+- Space: Jump
+- Left Shift: Run
+- Left Mouse: Attack (ranged)
+- Right Mouse: Melee
+- Mouse Scroll: Cycle weapons
+- Escape: Unlock cursor
