@@ -59,25 +59,31 @@ public class PlayerController : MonoBehaviour
 
         velocity.x = move.x;
         velocity.z = move.z;
-        velocity.y -= gravityScale * Time.deltaTime;
 
+        if (controller.isGrounded)
+        {
+            if (velocity.y < 0) velocity.y = -2f; // Stick to ground
+        }
+
+        velocity.y -= gravityScale * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
         isGrounded = controller.isGrounded;
     }
 
     private void HandleLook()
     {
-        if (!cameraTransform || (GameManager.Instance.cursorLocked && !GameManager.Instance.isGamePaused))
-        {
-            Vector2 lookInput = inputManager.LookInput;
+        if (!cameraTransform) return;
 
-            transform.Rotate(Vector3.up, lookInput.x * mouseSensitivity);
+        bool canLook = GameManager.Instance.cursorLocked && !GameManager.Instance.isGamePaused;
+        if (!canLook) return;
 
-            currentLookAngleX -= lookInput.y * mouseSensitivity;
-            currentLookAngleX = Mathf.Clamp(currentLookAngleX, minLookAngle, maxLookAngle);
+        Vector2 lookInput = inputManager.LookInput;
 
-            cameraTransform.localRotation = Quaternion.Euler(currentLookAngleX, 0, 0);
-        }
+        transform.Rotate(Vector3.up, lookInput.x * mouseSensitivity);
+        currentLookAngleX -= lookInput.y * mouseSensitivity;
+        currentLookAngleX = Mathf.Clamp(currentLookAngleX, minLookAngle, maxLookAngle);
+
+        cameraTransform.localRotation = Quaternion.Euler(currentLookAngleX, 0, 0);
     }
 
     private void HandleJump()

@@ -29,7 +29,8 @@ public static class SceneSetup
         canvasObj.AddComponent<CanvasScaler>();
         canvasObj.AddComponent<GraphicRaycaster>();
 
-        // Crosshair
+        // Crosshair - create procedural texture
+        Texture2D crosshairTexture = CreateCrosshairTexture();
         GameObject crosshairObj = new GameObject("Crosshair");
         Image crosshair = crosshairObj.AddComponent<Image>();
         crosshair.transform.SetParent(canvasObj.transform);
@@ -37,6 +38,7 @@ public static class SceneSetup
         crosshair.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
         crosshair.rectTransform.anchoredPosition = Vector2.zero;
         crosshair.rectTransform.sizeDelta = new Vector2(20, 20);
+        crosshair.sprite = Sprite.Create(crosshairTexture, new Rect(0, 0, 32, 32), new Vector2(0.5f, 0.5f), 32);
         crosshair.color = Color.white;
 
         // Weapon Name Text
@@ -78,6 +80,37 @@ public static class SceneSetup
         Selection.activeGameObject = cameraObj;
 
         Debug.Log("Scene setup complete! Assign weapon prefabs to WeaponManager.weapons");
+    }
+
+    private static Texture2D CreateCrosshairTexture()
+    {
+        int size = 32;
+        Texture2D tex = new Texture2D(size, size);
+        Color32[] colors = new Color32[size * size];
+
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                int i = y * size + x;
+                colors[i] = new Color32(255, 255, 255, 255);
+
+                // Draw crosshair lines
+                bool isHorizontal = y == size / 2;
+                bool isVertical = x == size / 2;
+                bool isDiagonal1 = (x == y && Mathf.Abs(x - size / 2) < 4);
+                bool isDiagonal2 = (x + y == size - 1 && Mathf.Abs(x - size / 2) < 4);
+
+                if (!(isHorizontal || isVertical || isDiagonal1 || isDiagonal2))
+                {
+                    colors[i] = new Color32(0, 0, 0, 0);
+                }
+            }
+        }
+
+        tex.SetPixels32(colors);
+        tex.Apply();
+        return tex;
     }
 
     [MenuItem("Tools/Create Weapon Prefabs")]
@@ -127,8 +160,11 @@ public static class SceneSetup
         melee.GetComponent<MeleeWeapon>().data = knife;
 
         // Make prefabs
-        PrefabUtility.SaveAsPrefabAsset(ranged, "Assets/Prefabs/RangedWeapon.prefab");
-        PrefabUtility.SaveAsPrefabAsset(melee, "Assets/Prefabs/MeleeWeapon.prefab");
+        string rangedPath = "Assets/Prefabs/RangedWeapon.prefab";
+        string meleePath = "Assets/Prefabs/MeleeWeapon.prefab";
+
+        PrefabUtility.SaveAsPrefabAsset(ranged, rangedPath);
+        PrefabUtility.SaveAsPrefabAsset(melee, meleePath);
 
         Object.DestroyImmediate(ranged);
         Object.DestroyImmediate(melee);
@@ -136,6 +172,28 @@ public static class SceneSetup
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        Debug.Log("Weapon prefabs created!");
+        Debug.Log("Weapon prefabs created! Load them into WeaponManager.weapons list.");
+    }
+
+    [MenuItem("Tools/Finalize Scene (Run after Create Weapon Prefabs)")]
+    public static void FinalizeScene()
+    {
+        // Find the player camera and assign weapon prefabs
+        GameObject cameraObj = GameObject.Find("PlayerCamera");
+        if (cameraObj == null) return;
+
+        WeaponManager wm = cameraObj.GetComponent<WeaponManager>();
+        if (wm == null) return;
+
+        // Load weapon prefabs
+        GameObject rangedPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/RangedWeapon.prefab");
+        GameObject meleePrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/MeleeWeapon.prefab");
+
+        if (rangedPrefab != null && meleePrefab != null)
+        {
+            wm.weapons.Add(rangedPrefab.GetComponent<RangedWeapon>());
+            wm.weapons.Add(meleePrefab.GetComponent<MeleeWeapon>());
+            Debug.Log("Weapons assigned to WeaponManager!");
+        }
     }
 }
