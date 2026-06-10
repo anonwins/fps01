@@ -2,18 +2,17 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(PlayerInput))]
-public class InputManager : MonoBehaviour
+public class InputManager : MonoBehaviour, PlayerInputActions.IPlayerActions
 {
     public static InputManager Instance { get; private set; }
 
-    private PlayerInput playerInput;
+    private PlayerInputActions inputActions;
 
     public Vector2 MoveInput { get; private set; } = Vector2.zero;
     public Vector2 LookInput { get; private set; } = Vector2.zero;
     public bool JumpPressed { get; private set; } = false;
     public bool RunHeld { get; private set; } = false;
     public bool AttackPressed { get; private set; } = false;
-    public bool MeleePressed { get; private set; } = false;
     public float CycleWeaponInput { get; private set; } = 0f;
 
     private void Awake()
@@ -26,17 +25,29 @@ public class InputManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        playerInput = GetComponent<PlayerInput>();
+        inputActions = new PlayerInputActions();
+        inputActions.Player.AddCallbacks(this);
     }
 
-    public void OnMove(InputValue value)
+    private void OnEnable()
     {
-        MoveInput = value.Get<Vector2>();
+        inputActions.Enable();
     }
 
-    public void OnLook(InputValue value)
+    private void OnDisable()
     {
-        LookInput = value.Get<Vector2>();
+        inputActions.Disable();
+    }
+
+    // IPlayerActions interface implementation
+    public void OnMove(InputAction.CallbackContext context)
+    {
+        MoveInput = context.ReadValue<Vector2>();
+    }
+
+    public void OnLook(InputAction.CallbackContext context)
+    {
+        LookInput = context.ReadValue<Vector2>();
     }
 
     public void OnJump(InputAction.CallbackContext context)
@@ -54,14 +65,9 @@ public class InputManager : MonoBehaviour
         if (context.started) AttackPressed = true;
     }
 
-    public void OnMelee(InputAction.CallbackContext context)
+    public void OnCycleWeapon(InputAction.CallbackContext context)
     {
-        if (context.started) MeleePressed = true;
-    }
-
-    public void OnCycleWeapon(InputValue value)
-    {
-        CycleWeaponInput = value.Get<float>();
+        CycleWeaponInput = context.ReadValue<float>();
     }
 
     private void LateUpdate()
@@ -69,6 +75,5 @@ public class InputManager : MonoBehaviour
         // Reset single-frame inputs
         JumpPressed = false;
         AttackPressed = false;
-        MeleePressed = false;
     }
 }

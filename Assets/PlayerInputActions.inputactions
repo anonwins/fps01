@@ -52,15 +52,6 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Melee",
-                    "type": "Button",
-                    "id": "540302fb-9def-489e-be6e-b10de3332378",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "CycleWeapon",
                     "type": "Value",
                     "id": "c581c3a7-7d07-4cbf-adfa-f5dba1f02b63",
@@ -72,20 +63,64 @@
             ],
             "bindings": [
                 {
-                    "name": "",
+                    "name": "WASD",
                     "id": "3f1701d3-6808-48ff-9a93-bb989b14759b",
                     "path": "",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "Move",
-                    "isComposite": false,
+                    "isComposite": true,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "w",
+                    "id": "a1b2c3d4-1111-2222-3333-444455556661",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "s",
+                    "id": "a1b2c3d4-1111-2222-3333-444455556662",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "a",
+                    "id": "a1b2c3d4-1111-2222-3333-444455556663",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "d",
+                    "id": "a1b2c3d4-1111-2222-3333-444455556664",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
                 },
                 {
                     "name": "",
                     "id": "4cff0ad0-1e6c-45a5-b6cf-132ce3511718",
-                    "path": "",
+                    "path": "<Mouse>/delta",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -96,7 +131,7 @@
                 {
                     "name": "",
                     "id": "240ae583-44f7-4e69-983f-9854be17f701",
-                    "path": "",
+                    "path": "<Keyboard>/space",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -107,7 +142,7 @@
                 {
                     "name": "",
                     "id": "5cc2d5bc-52a6-4ed4-84eb-25a93764eff4",
-                    "path": "",
+                    "path": "<Keyboard>/leftShift",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -118,7 +153,7 @@
                 {
                     "name": "",
                     "id": "eac0ed9c-494c-408a-8be8-0054da4c1221",
-                    "path": "",
+                    "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -128,19 +163,8 @@
                 },
                 {
                     "name": "",
-                    "id": "27d48c1b-e1bc-4f9b-bfd3-4a5fd44d79b6",
-                    "path": "",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Melee",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "7a6b0320-41d3-4ff7-bf65-fdccf3c2fedf",
-                    "path": "",
+                    "path": "<Mouse>/scroll/y",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

@@ -45,7 +45,7 @@ public static class SceneSetup
         GameObject textObj = new GameObject("WeaponName");
         Text weaponText = textObj.AddComponent<Text>();
         weaponText.transform.SetParent(canvasObj.transform);
-        weaponText.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+        weaponText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         weaponText.alignment = TextAnchor.MiddleRight;
         weaponText.rectTransform.anchorMin = new Vector2(1, 1);
         weaponText.rectTransform.anchorMax = new Vector2(1, 1);
@@ -114,15 +114,18 @@ public static class SceneSetup
     [MenuItem("Tools/Create Weapon Prefabs")]
     public static void CreateWeaponPrefabs()
     {
-        // Create Ranged Weapon
+        // Create Ranged Weapon - LineRenderer is auto-added by RequireComponent
         GameObject ranged = new GameObject("RangedWeapon");
         ranged.AddComponent<RangedWeapon>();
-        LineRenderer lr = ranged.AddComponent<LineRenderer>();
-        lr.positionCount = 2;
-        lr.startWidth = 0.05f;
-        lr.endWidth = 0.05f;
-        lr.material = new Material(Shader.Find("Unlit/Color"));
-        lr.material.color = Color.yellow;
+        LineRenderer lr = ranged.GetComponent<LineRenderer>();
+        if (lr != null)
+        {
+            lr.positionCount = 2;
+            lr.startWidth = 0.05f;
+            lr.endWidth = 0.05f;
+            lr.material = new Material(Shader.Find("Unlit/Color"));
+            lr.material.color = Color.yellow;
+        }
 
         // Create Melee Weapon
         GameObject melee = new GameObject("MeleeWeapon");

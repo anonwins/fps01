@@ -58,17 +58,10 @@ public class WeaponManager : MonoBehaviour
     {
         if (currentWeapon == null) return;
 
+        // Single attack button - works for both melee and ranged
         if (inputManager.AttackPressed)
         {
             currentWeapon.Attack();
-        }
-
-        if (inputManager.MeleePressed)
-        {
-            if (currentWeapon.data.type == WeaponType.Melee)
-            {
-                currentWeapon.Attack();
-            }
         }
     }
 
