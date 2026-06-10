@@ -21,12 +21,12 @@ public class PlayerController : MonoBehaviour
     private float currentLookAngleX = 0f;
     private bool isGrounded;
 
-    private InputManager inputManager;
+    private Vector2 moveInput = Vector2.zero;
+    private Vector2 lookInput = Vector2.zero;
 
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
-        inputManager = GetComponent<InputManager>();
 
         if (cameraTransform == null)
         {
@@ -34,27 +34,29 @@ public class PlayerController : MonoBehaviour
             if (mainCamera != null)
                 cameraTransform = mainCamera.transform;
         }
+
+        var inputMgr = GetComponent<InputManager>();
+        inputMgr.OnMoveInput += HandleMoveInput;
+        inputMgr.OnLookInput += HandleLookInput;
+        inputMgr.OnJumpPressed += HandleJump;
     }
 
     private void Update()
     {
         HandleMovement();
         HandleLook();
-        HandleJump();
     }
+
+    private void HandleMoveInput(Vector2 input) => moveInput = input;
+    private void HandleLookInput(Vector2 input) => lookInput = input;
 
     private void HandleMovement()
     {
-        Vector2 moveInput = inputManager.MoveInput;
         Vector3 move = new Vector3(moveInput.x, 0, moveInput.y);
         move = transform.TransformDirection(move);
 
-        float speed = moveSpeed;
-        if (inputManager.RunHeld)
-        {
-            speed *= runMultiplier;
-        }
-
+        var inputMgr = GetComponent<InputManager>();
+        float speed = moveSpeed * (inputMgr.RunHeld ? runMultiplier : 1f);
         move *= speed;
 
         velocity.x = move.x;
@@ -62,7 +64,7 @@ public class PlayerController : MonoBehaviour
 
         if (controller.isGrounded)
         {
-            if (velocity.y < 0) velocity.y = -2f; // Stick to ground
+            if (velocity.y < 0) velocity.y = -2f;
         }
 
         velocity.y -= gravityScale * Time.deltaTime;
@@ -75,23 +77,29 @@ public class PlayerController : MonoBehaviour
         if (!cameraTransform) return;
 
         bool canLook = GameManager.Instance.cursorLocked && !GameManager.Instance.isGamePaused;
-        if (!canLook) return;
+        if (!canLook)
+        {
+            lookInput = Vector2.zero;
+            return;
+        }
 
-        Vector2 lookInput = inputManager.LookInput;
+        Vector2 delta = lookInput;
+        lookInput = Vector2.zero;
 
-        transform.Rotate(Vector3.up, lookInput.x * mouseSensitivity);
-        currentLookAngleX -= lookInput.y * mouseSensitivity;
-        currentLookAngleX = Mathf.Clamp(currentLookAngleX, minLookAngle, maxLookAngle);
+        if (delta.sqrMagnitude > 0.001f)
+        {
+            transform.Rotate(Vector3.up, delta.x * mouseSensitivity);
+            currentLookAngleX -= delta.y * mouseSensitivity;
+            currentLookAngleX = Mathf.Clamp(currentLookAngleX, minLookAngle, maxLookAngle);
 
-        cameraTransform.localRotation = Quaternion.Euler(currentLookAngleX, 0, 0);
+            cameraTransform.localRotation = Quaternion.Euler(currentLookAngleX, 0, 0);
+        }
     }
 
     private void HandleJump()
     {
-        if (isGrounded && inputManager.JumpPressed)
-        {
+        if (isGrounded)
             velocity.y = jumpForce;
-        }
     }
 
     public bool IsGrounded() => isGrounded;

@@ -13,12 +13,27 @@ public class WeaponManager : MonoBehaviour
     private int currentWeaponIndex = 0;
     private WeaponBase currentWeapon;
 
-    private InputManager inputManager;
-
     private void Awake()
     {
-        inputManager = GetComponent<InputManager>();
         InitializeWeapons();
+    }
+
+    private void OnEnable()
+    {
+        var inputMgr = GetComponent<InputManager>();
+        if (inputMgr != null)
+        {
+            inputMgr.OnCycleWeapon += HandleCycleWeapon;
+        }
+    }
+
+    private void OnDisable()
+    {
+        var inputMgr = GetComponent<InputManager>();
+        if (inputMgr != null)
+        {
+            inputMgr.OnCycleWeapon -= HandleCycleWeapon;
+        }
     }
 
     private void InitializeWeapons()
@@ -34,35 +49,18 @@ public class WeaponManager : MonoBehaviour
         }
     }
 
-    private void Update()
+    private void HandleCycleWeapon(float scroll)
     {
-        HandleWeaponCycling();
-        HandleAttack();
-    }
-
-    private void HandleWeaponCycling()
-    {
-        float cycleInput = inputManager.CycleWeaponInput;
-
-        if (cycleInput > 0.5f)
-        {
+        if (scroll > 0.5f)
             CycleNext();
-        }
-        else if (cycleInput < -0.5f)
-        {
+        else if (scroll < -0.5f)
             CyclePrevious();
-        }
     }
 
-    private void HandleAttack()
+    public void HandleAttackInput()
     {
         if (currentWeapon == null) return;
-
-        // Single attack button - works for both melee and ranged
-        if (inputManager.AttackPressed)
-        {
-            currentWeapon.Attack();
-        }
+        currentWeapon.Attack();
     }
 
     public void CycleNext()

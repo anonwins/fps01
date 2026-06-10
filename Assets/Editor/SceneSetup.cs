@@ -80,7 +80,7 @@ public static class SceneSetup
         WorldGenerator wg = worldObj.GetComponent<WorldGenerator>();
         wg.directionalLight = lightObj.GetComponent<Light>();
 
-        // Focus on camera
+// Focus on camera
         Selection.activeGameObject = cameraObj;
 
         Debug.Log("Scene setup complete! Run Create Weapon Prefabs next.");
@@ -88,24 +88,12 @@ public static class SceneSetup
 
     private static InputActionAsset CreateInputActionsAsset()
     {
-        // Create input actions asset programmatically
-        var actions = new InputActionAsset();
-        
-        // Add Player action map
-        var playerMap = actions.AddActionMap("Player");
-        
-        // Add actions
-        var moveAction = playerMap.AddAction("Move", type: InputActionType.Value, binding: "Keyboard/WASD");
-        var lookAction = playerMap.AddAction("Look", type: InputActionType.Value, binding: "<Mouse>/delta");
-        var jumpAction = playerMap.AddAction("Jump", type: InputActionType.Button, binding: "<Keyboard>/space");
-        var runAction = playerMap.AddAction("Run", type: InputActionType.Button, binding: "<Keyboard>/leftShift");
-        var attackAction = playerMap.AddAction("Attack", type: InputActionType.Button, binding: "<Mouse>/leftButton");
-        var cycleAction = playerMap.AddAction("CycleWeapon", type: InputActionType.Value, binding: "<Mouse>/scroll");
-
-        // Save the asset
-        AssetDatabase.CreateAsset(actions, "Assets/PlayerInputActions.inputactions");
-        AssetDatabase.SaveAssets();
-
+        string path = "Assets/PlayerInputActions.inputactions";
+        var actions = AssetDatabase.LoadAssetAtPath<InputActionAsset>(path);
+        if (actions == null)
+        {
+            Debug.LogError("PlayerInputActions.inputactions not found at " + path);
+        }
         return actions;
     }
 
