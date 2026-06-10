@@ -41,7 +41,7 @@ public class InputManager : MonoBehaviour
 
     public void OnJump(InputAction.CallbackContext context)
     {
-        JumpPressed = context.triggered;
+        if (context.started) JumpPressed = true;
     }
 
     public void OnRun(InputAction.CallbackContext context)
@@ -51,12 +51,12 @@ public class InputManager : MonoBehaviour
 
     public void OnAttack(InputAction.CallbackContext context)
     {
-        AttackPressed = context.triggered;
+        if (context.started) AttackPressed = true;
     }
 
     public void OnMelee(InputAction.CallbackContext context)
     {
-        MeleePressed = context.triggered;
+        if (context.started) MeleePressed = true;
     }
 
     public void OnCycleWeapon(InputValue value)

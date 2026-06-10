@@ -69,8 +69,6 @@ public static class SceneSetup
             lightObj = new GameObject("Directional Light");
             Light light = lightObj.AddComponent<Light>();
             light.type = LightType.Directional;
-            lightObj.AddComponent<AudioListener>(); // Remove this duplicate
-            DestroyImmediate(lightObj.GetComponent<AudioListener>());
         }
 
         WorldGenerator wg = worldObj.GetComponent<WorldGenerator>();
@@ -79,7 +77,7 @@ public static class SceneSetup
         // Focus on camera
         Selection.activeGameObject = cameraObj;
 
-        Debug.Log("Scene setup complete! Assign weapon prefabs to WeaponManager.weapons");
+        Debug.Log("Scene setup complete! Run Create Weapon Prefabs next.");
     }
 
     private static Texture2D CreateCrosshairTexture()
@@ -172,13 +170,12 @@ public static class SceneSetup
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        Debug.Log("Weapon prefabs created! Load them into WeaponManager.weapons list.");
+        Debug.Log("Weapon prefabs created! Now run Finalize Scene.");
     }
 
     [MenuItem("Tools/Finalize Scene (Run after Create Weapon Prefabs)")]
     public static void FinalizeScene()
     {
-        // Find the player camera and assign weapon prefabs
         GameObject cameraObj = GameObject.Find("PlayerCamera");
         if (cameraObj == null) return;
 
@@ -191,8 +188,12 @@ public static class SceneSetup
 
         if (rangedPrefab != null && meleePrefab != null)
         {
-            wm.weapons.Add(rangedPrefab.GetComponent<RangedWeapon>());
-            wm.weapons.Add(meleePrefab.GetComponent<MeleeWeapon>());
+            // Instantiate weapon objects (needed for weapon list)
+            GameObject rangedInstance = (GameObject)PrefabUtility.InstantiatePrefab(rangedPrefab);
+            GameObject meleeInstance = (GameObject)PrefabUtility.InstantiatePrefab(meleePrefab);
+
+            wm.weapons.Add(rangedInstance.GetComponent<RangedWeapon>());
+            wm.weapons.Add(meleeInstance.GetComponent<MeleeWeapon>());
             Debug.Log("Weapons assigned to WeaponManager!");
         }
     }

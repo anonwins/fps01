@@ -101,7 +101,7 @@ public class WorldGenerator : MonoBehaviour
     {
         if (directionalLight == null)
         {
-            directionalLight = FindFirstObjectByType<Light>();
+            directionalLight = Object.FindAnyObjectByType<Light>();
         }
 
         if (directionalLight != null)
