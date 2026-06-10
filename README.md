@@ -26,47 +26,52 @@
 7. Change from "Input Manager (Old)" to "Input System Package (New)"
 8. Unity will show a restart prompt - click "Restart" or "Restart Later"
 
-### 4. Run Setup Tools
-1. After Unity restarts, look at top menu bar
-2. Find "Tools" menu (between "Window" and "Help")
-3. Click "Tools" > "Setup Scene"
-4. Wait for Console to show "Scene setup complete!"
-5. Click "Tools" > "Create Weapon Prefabs"
-6. Click "Tools" > "Finalize Scene"
+### 4. Create Input Actions Asset
+1. In Project window (bottom-left panel), right-click empty space
+2. Select "Create" > "Input Actions"
+3. Name: `PlayerInputActions`
+4. When prompted "Assign as project-wide input actions", click "Yes"
 
-### 5. Save the Scene
-1. Press Ctrl+S (or go to File > Save)
-2. In save dialog, ensure "Scenes" folder is selected
-3. Name: `Main`
-4. Click "Save"
+### 5. Configure Input Actions
+Double-click the `PlayerInputActions` file and configure:
 
-### 6. Build the Game
-1. Go to top menu: Tools > Build > Build Windows (Standalone)
-2. Or use File > Build Settings for more options
+**Actions to add (click "+" for each):**
+- Move (Value, Vector2)
+- Look (Value, Vector2)
+- Jump (Button)
+- Run (Button)
+- Attack (Button)
+- CycleWeapon (Value, Axis)
 
-## Controls Summary
+**Bind each action:**
+- **Move**: Click "+" > "2D Vector Composite" > name "WASD"
+  - Up: `<Keyboard>/w`
+  - Down: `<Keyboard>/s`
+  - Left: `<Keyboard>/a`
+  - Right: `<Keyboard>/d`
+- **Look**: `<Mouse>/delta`
+- **Jump**: `<Keyboard>/space`
+- **Run**: `<Keyboard>/leftShift`
+- **Attack**: `<Mouse>/leftButton`
+- **CycleWeapon**: `<Mouse>/scroll/y`
+
+Save and close the editor.
+
+### 6. Assign Input Actions to PlayerInput
+1. Select "PlayerCamera" in Hierarchy
+2. On PlayerInput component, find "Actions" field
+3. Drag `PlayerInputActions` asset into it
+
+### 7. Build the Game
+1. Top menu: Tools > Build > Build Windows (Standalone)
+
+## Controls
 | Key | Action |
 |-----|--------|
 | W/A/S/D | Move |
-| Mouse | Look around |
+| Mouse | Look |
 | Space | Jump |
-| Left Shift | Run (faster movement) |
-| Left Mouse | Attack (works for both melee and ranged weapons) |
-| Mouse Scroll | Cycle weapons |
-| Escape | Unlock mouse cursor |
-
-## Project Structure
-```
-Assets/Scripts/Core/       # GameManager, InputManager
-Assets/Scripts/Player/     # PlayerController
-Assets/Scripts/Weapons/    # Weapon system
-Assets/Scripts/Environment/ # WorldGenerator
-Assets/Scripts/Utilities/  # IDamageable, ObjectPool
-Assets/Editor/             # SceneSetup, BuildScript
-```
-
-## Adding More Weapons
-1. Right-click in Assets > Create > Weapons > WeaponData
-2. Configure: Name, Type, Damage, Range, Attack Rate
-3. Create prefab, add Weapon component, assign data
-4. Add to WeaponManager.weapons list in Inspector
+| LShift | Run |
+| LMouse | Attack |
+| Scroll | Cycle weapons |
+| Escape | Unlock cursor |

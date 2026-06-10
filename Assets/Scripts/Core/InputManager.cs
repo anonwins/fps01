@@ -2,11 +2,11 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(PlayerInput))]
-public class InputManager : MonoBehaviour, PlayerInputActions.IPlayerActions
+public class InputManager : MonoBehaviour
 {
     public static InputManager Instance { get; private set; }
 
-    private PlayerInputActions inputActions;
+    private PlayerInput playerInput;
 
     public Vector2 MoveInput { get; private set; } = Vector2.zero;
     public Vector2 LookInput { get; private set; } = Vector2.zero;
@@ -24,56 +24,33 @@ public class InputManager : MonoBehaviour, PlayerInputActions.IPlayerActions
         }
         Instance = this;
         DontDestroyOnLoad(gameObject);
-
-        inputActions = new PlayerInputActions();
-        inputActions.Player.AddCallbacks(this);
     }
 
-    private void OnEnable()
+    private void Update()
     {
-        inputActions.Enable();
-    }
+        if (playerInput == null)
+        {
+            playerInput = GetComponent<PlayerInput>();
+            if (playerInput == null) return;
+        }
 
-    private void OnDisable()
-    {
-        inputActions.Disable();
-    }
-
-    // IPlayerActions interface implementation
-    public void OnMove(InputAction.CallbackContext context)
-    {
-        MoveInput = context.ReadValue<Vector2>();
-    }
-
-    public void OnLook(InputAction.CallbackContext context)
-    {
-        LookInput = context.ReadValue<Vector2>();
-    }
-
-    public void OnJump(InputAction.CallbackContext context)
-    {
-        if (context.started) JumpPressed = true;
-    }
-
-    public void OnRun(InputAction.CallbackContext context)
-    {
-        RunHeld = context.ReadValueAsButton();
-    }
-
-    public void OnAttack(InputAction.CallbackContext context)
-    {
-        if (context.started) AttackPressed = true;
-    }
-
-    public void OnCycleWeapon(InputAction.CallbackContext context)
-    {
-        CycleWeaponInput = context.ReadValue<float>();
-    }
-
-    private void LateUpdate()
-    {
-        // Reset single-frame inputs
-        JumpPressed = false;
-        AttackPressed = false;
+        // Poll values from PlayerInput
+        if (playerInput.actions["Move"] != null)
+            MoveInput = playerInput.actions["Move"].ReadValue<Vector2>();
+        
+        if (playerInput.actions["Look"] != null)
+            LookInput = playerInput.actions["Look"].ReadValue<Vector2>();
+        
+        if (playerInput.actions["Jump"] != null)
+            JumpPressed = playerInput.actions["Jump"].triggered;
+        
+        if (playerInput.actions["Run"] != null)
+            RunHeld = playerInput.actions["Run"].IsPressed();
+        
+        if (playerInput.actions["Attack"] != null)
+            AttackPressed = playerInput.actions["Attack"].triggered;
+        
+        if (playerInput.actions["CycleWeapon"] != null)
+            CycleWeaponInput = playerInput.actions["CycleWeapon"].ReadValue<float>();
     }
 }

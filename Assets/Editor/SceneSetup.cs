@@ -1,6 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 
 public static class SceneSetup
 {
@@ -16,6 +17,11 @@ public static class SceneSetup
         cameraObj.AddComponent<PlayerController>();
         cameraObj.AddComponent<WeaponManager>();
         cameraObj.AddComponent<InputManager>();
+
+        PlayerInput playerInput = cameraObj.AddComponent<PlayerInput>();
+        playerInput.actions = CreateInputActionsAsset();
+        playerInput.defaultScheme = "Keyboard&Mouse";
+        playerInput.defaultAction = "Move";
 
         // Create WeaponHolder
         GameObject weaponHolder = new GameObject("WeaponHolder");
@@ -80,6 +86,29 @@ public static class SceneSetup
         Debug.Log("Scene setup complete! Run Create Weapon Prefabs next.");
     }
 
+    private static InputActionAsset CreateInputActionsAsset()
+    {
+        // Create input actions asset programmatically
+        var actions = new InputActionAsset();
+        
+        // Add Player action map
+        var playerMap = actions.AddActionMap("Player");
+        
+        // Add actions
+        var moveAction = playerMap.AddAction("Move", type: InputActionType.Value, binding: "Keyboard/WASD");
+        var lookAction = playerMap.AddAction("Look", type: InputActionType.Value, binding: "<Mouse>/delta");
+        var jumpAction = playerMap.AddAction("Jump", type: InputActionType.Button, binding: "<Keyboard>/space");
+        var runAction = playerMap.AddAction("Run", type: InputActionType.Button, binding: "<Keyboard>/leftShift");
+        var attackAction = playerMap.AddAction("Attack", type: InputActionType.Button, binding: "<Mouse>/leftButton");
+        var cycleAction = playerMap.AddAction("CycleWeapon", type: InputActionType.Value, binding: "<Mouse>/scroll");
+
+        // Save the asset
+        AssetDatabase.CreateAsset(actions, "Assets/PlayerInputActions.inputactions");
+        AssetDatabase.SaveAssets();
+
+        return actions;
+    }
+
     private static Texture2D CreateCrosshairTexture()
     {
         int size = 32;
@@ -122,7 +151,6 @@ public static class SceneSetup
             lr.positionCount = 2;
             lr.startWidth = 0.05f;
             lr.endWidth = 0.05f;
-            // Create material asset instead of using renderer.material
             Material tracerMat = new Material(Shader.Find("Unlit/Color"));
             tracerMat.color = Color.yellow;
             lr.sharedMaterial = tracerMat;
@@ -158,16 +186,11 @@ public static class SceneSetup
         knife.isAutomatic = false;
         AssetDatabase.CreateAsset(knife, "Assets/WeaponData_Knife.asset");
 
-        // Assign weapon data
         ranged.GetComponent<RangedWeapon>().data = pistol;
         melee.GetComponent<MeleeWeapon>().data = knife;
 
-        // Make prefabs
-        string rangedPath = "Assets/Prefabs/RangedWeapon.prefab";
-        string meleePath = "Assets/Prefabs/MeleeWeapon.prefab";
-
-        PrefabUtility.SaveAsPrefabAsset(ranged, rangedPath);
-        PrefabUtility.SaveAsPrefabAsset(melee, meleePath);
+        PrefabUtility.SaveAsPrefabAsset(ranged, "Assets/Prefabs/RangedWeapon.prefab");
+        PrefabUtility.SaveAsPrefabAsset(melee, "Assets/Prefabs/MeleeWeapon.prefab");
 
         Object.DestroyImmediate(ranged);
         Object.DestroyImmediate(melee);
@@ -178,7 +201,7 @@ public static class SceneSetup
         Debug.Log("Weapon prefabs created! Now run Finalize Scene.");
     }
 
-    [MenuItem("Tools/Finalize Scene (Run after Create Weapon Prefabs)")]
+    [MenuItem("Tools/Finalize Scene")]
     public static void FinalizeScene()
     {
         GameObject cameraObj = GameObject.Find("PlayerCamera");
@@ -187,18 +210,12 @@ public static class SceneSetup
         WeaponManager wm = cameraObj.GetComponent<WeaponManager>();
         if (wm == null) return;
 
-        // Load weapon prefabs
-        GameObject rangedPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/RangedWeapon.prefab");
-        GameObject meleePrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/MeleeWeapon.prefab");
+        GameObject rangedInstance = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/RangedWeapon.prefab"));
+        GameObject meleeInstance = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/MeleeWeapon.prefab"));
 
-        if (rangedPrefab != null && meleePrefab != null)
-        {
-            GameObject rangedInstance = (GameObject)PrefabUtility.InstantiatePrefab(rangedPrefab);
-            GameObject meleeInstance = (GameObject)PrefabUtility.InstantiatePrefab(meleePrefab);
+        if (rangedInstance != null) wm.weapons.Add(rangedInstance.GetComponent<RangedWeapon>());
+        if (meleeInstance != null) wm.weapons.Add(meleeInstance.GetComponent<MeleeWeapon>());
 
-            wm.weapons.Add(rangedInstance.GetComponent<RangedWeapon>());
-            wm.weapons.Add(meleeInstance.GetComponent<MeleeWeapon>());
-            Debug.Log("Weapons assigned to WeaponManager!");
-        }
+        Debug.Log("Weapons assigned!");
     }
 }
