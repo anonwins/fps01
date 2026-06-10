@@ -93,7 +93,6 @@ public static class SceneSetup
                 int i = y * size + x;
                 colors[i] = new Color32(255, 255, 255, 255);
 
-                // Draw crosshair lines
                 bool isHorizontal = y == size / 2;
                 bool isVertical = x == size / 2;
                 bool isDiagonal1 = (x == y && Mathf.Abs(x - size / 2) < 4);
@@ -123,8 +122,11 @@ public static class SceneSetup
             lr.positionCount = 2;
             lr.startWidth = 0.05f;
             lr.endWidth = 0.05f;
-            lr.material = new Material(Shader.Find("Unlit/Color"));
-            lr.material.color = Color.yellow;
+            // Create material asset instead of using renderer.material
+            Material tracerMat = new Material(Shader.Find("Unlit/Color"));
+            tracerMat.color = Color.yellow;
+            lr.sharedMaterial = tracerMat;
+            AssetDatabase.CreateAsset(tracerMat, "Assets/TracerMaterial.mat");
         }
 
         // Create Melee Weapon
@@ -191,7 +193,6 @@ public static class SceneSetup
 
         if (rangedPrefab != null && meleePrefab != null)
         {
-            // Instantiate weapon objects (needed for weapon list)
             GameObject rangedInstance = (GameObject)PrefabUtility.InstantiatePrefab(rangedPrefab);
             GameObject meleeInstance = (GameObject)PrefabUtility.InstantiatePrefab(meleePrefab);
 
