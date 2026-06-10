@@ -300,8 +300,8 @@ MonoBehaviour:
     m_TextWithWhitespace: "UnityEditor.MainToolbarWindow\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 517
-    y: 190
+    x: 0
+    y: 0
     width: 1024
     height: 36
   m_SerializedDataModeController:
@@ -604,9 +604,7 @@ MonoBehaviour:
       m_Data: 20990
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 20990
-    - m_Data: 1000000000
-    - m_Data: 2147483647
+    - m_Data: 24220
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -640,9 +638,7 @@ MonoBehaviour:
       m_Data: 0
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 20990
-    - m_Data: 1000000000
-    - m_Data: 2147483647
+    - m_Data: 24220
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -799,8 +795,7 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs:
-      - m_Data: -3568
+      m_SelectedIDs: []
       m_LastClickedID:
         m_Data: 0
       m_ExpandedIDs:
@@ -852,8 +847,8 @@ MonoBehaviour:
     m_TextWithWhitespace: "Scene\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 711
-    y: 226
+    x: 195
+    y: 24
     width: 586
     height: 396
   m_SerializedDataModeController:
