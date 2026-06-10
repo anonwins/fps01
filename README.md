@@ -30,6 +30,8 @@
 1. In Project window (bottom-left panel showing Assets folder), right-click on empty space
 2. Select "Create" > "Input Actions"
 3. Name the file: `PlayerInputActions` (press Enter to confirm)
+4. When prompted "Assign as project-wide input actions", click "Yes"
+5. Check "Generate C# Class" checkbox
 
 ### 5. Configure Input Actions (PlayerInputActions file)
 1. Double-click the `PlayerInputActions` file you just created
@@ -37,14 +39,17 @@
 3. On left side, under "Action Maps", click the "+" button
 4. A new action map appears called "New Action Map" - rename to `Player`
 5. Click on "Player" to select it
-6. On right side, click "Add Action" button (+) three times to add:
-   - `Move` (set Action Type to "Value", Control Type to "Vector2")
-   - `Look` (set Action Type to "Value", Control Type to "Vector2")
-   - `Jump` (set Action Type to "Button", Control Type to "Button")
-   - `Run` (set Action Type to "Button", Control Type to "Button")
-   - `Attack` (set Action Type to "Button", Control Type to "Button")
-   - `Melee` (set Action Type to "Button", Control Type to "Button")
-   - `CycleWeapon` (set Action Type to "Value", Control Type to "Axis")
+6. Click "Add Action" button (+) for EACH action below and configure:
+
+| Click "+" to add each action: |
+|-------------------------------|
+| `Move` (Action Type: Value, Control Type: Vector2) |
+| `Look` (Action Type: Value, Control Type: Vector2) |
+| `Jump` (Action Type: Button, Control Type: Button) |
+| `Run` (Action Type: Button, Control Type: Button) |
+| `Attack` (Action Type: Button, Control Type: Button) |
+| `Melee` (Action Type: Button, Control Type: Button) |
+| `CycleWeapon` (Action Type: Value, Control Type: Axis) |
 
 ### 6. Bind Controls to Actions
 In the Input Actions editor:
@@ -99,23 +104,14 @@ In the Input Actions editor:
 ```
 Assets/Scripts/Core/       # GameManager, InputManager
 Assets/Scripts/Player/     # PlayerController
-Assets/Scripts/Weapons/    # Weapon system (all files here)
+Assets/Scripts/Weapons/    # Weapon system
 Assets/Scripts/Environment/ # WorldGenerator
-Assets/Scripts/Utilities/ # IDamageable, ObjectPool
-Assets/Editor/            # SceneSetup, BuildScript (editor tools)
-Assets/Prefabs/           # Created by tools
-Assets/Scenes/            # Main.unity scene
+Assets/Scripts/Utilities/  # IDamageable, ObjectPool
+Assets/Editor/             # SceneSetup, BuildScript
 ```
 
 ## Adding More Weapons
 1. Right-click in Assets > Create > Weapons > WeaponData
-2. Configure in Inspector:
-   - Weapon Name: "New Weapon"
-   - Type: Melee or Ranged
-   - Damage: 10
-   - Range: 100
-   - Attack Rate: 1
-3. Create empty prefab: Right-click Assets/Prefabs > Create > Empty
-4. Add Weapon component (RangedWeapon or MeleeWeapon)
-5. Assign WeaponData to the component
-6. Add the weapon to WeaponManager.weapons list in Inspector
+2. Configure: Name, Type, Damage, Range, Attack Rate
+3. Create prefab, add Weapon component, assign data
+4. Add to WeaponManager.weapons list in Inspector
