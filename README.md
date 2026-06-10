@@ -26,17 +26,12 @@
 7. Change from "Input Manager (Old)" to "Input System Package (New)"
 8. Unity will show a restart prompt - click "Restart" or "Restart Later"
 
-### 4. Create Input Actions Asset
-1. In Project window (bottom-left panel), right-click empty space
-2. Select "Create" > "Input Actions"
-3. Name: `PlayerInputActions`
-4. When prompted "Assign as project-wide input actions", click "Yes"
-
-### 5. Configure Input Actions
-Double-click the `PlayerInputActions` file and configure:
+### 4. Input Actions Asset
+The `PlayerInputActions.inputactions` file is already configured. If recreating manually:
 
 **Actions to add (click "+" for each):**
-- Move (Value, Vector2)
+- MoveX (Value, Axis) - for A/D keys
+- MoveY (Value, Axis) - for W/S keys
 - Look (Value, Vector2)
 - Jump (Button)
 - Run (Button)
@@ -44,26 +39,25 @@ Double-click the `PlayerInputActions` file and configure:
 - CycleWeapon (Value, Axis)
 
 **Bind each action:**
-- **Move**: Click "+" > "2D Vector Composite" > name "WASD"
-  - Up: `<Keyboard>/w`
-  - Down: `<Keyboard>/s`
-  - Left: `<Keyboard>/a`
-  - Right: `<Keyboard>/d`
+- **MoveX**: `<Keyboard>/d` (positive), `<Keyboard>/a` (negative)
+- **MoveY**: `<Keyboard>/w` (positive), `<Keyboard>/s` (negative)
 - **Look**: `<Mouse>/delta`
 - **Jump**: `<Keyboard>/space`
 - **Run**: `<Keyboard>/leftShift`
 - **Attack**: `<Mouse>/leftButton`
-- **CycleWeapon**: `<Mouse>/scroll/y`
+- **CycleWeapon**: `<Mouse>/scroll`
 
 Save and close the editor.
 
-### 6. Assign Input Actions to PlayerInput
+### 5. Assign Input Actions to PlayerInput
 1. Select "PlayerCamera" in Hierarchy
 2. On PlayerInput component, find "Actions" field
 3. Drag `PlayerInputActions` asset into it
+4. Set "Default Control Scheme" to "Keyboard&Mouse"
+5. Set "Default Action Map" to "Player"
 
-### 7. Build the Game
-1. Top menu: Tools > Build > Build Windows (Standalone)
+### 6. Build the Game
+1. Top menu: Build > Build Windows (Standalone)
 
 ## Controls
 | Key | Action |

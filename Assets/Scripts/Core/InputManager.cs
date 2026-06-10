@@ -6,8 +6,10 @@ public class InputManager : MonoBehaviour
 {
     public static InputManager Instance { get; private set; }
 
-    public Vector2 MoveInput { get; private set; } = Vector2.zero;
-    public Vector2 LookInput { get; private set; } = Vector2.zero;
+    private Vector2 moveInput = Vector2.zero;
+    public Vector2 MoveInput => moveInput;
+    private Vector2 lookInput = Vector2.zero;
+    public Vector2 LookInput => lookInput;
     public bool RunHeld { get; private set; } = false;
 
     public event System.Action<Vector2> OnMoveInput;
@@ -16,7 +18,8 @@ public class InputManager : MonoBehaviour
     public event System.Action<float> OnCycleWeapon;
 
     private PlayerInput playerInput;
-    private InputAction moveAction;
+    private InputAction moveXAction;
+    private InputAction moveYAction;
     private InputAction lookAction;
     private InputAction jumpAction;
     private InputAction runAction;
@@ -35,20 +38,21 @@ public class InputManager : MonoBehaviour
         playerInput = GetComponent<PlayerInput>();
         
         var actions = playerInput.actions;
-        if (actions != null)
-        {
-            moveAction = actions["Move"];
-            lookAction = actions["Look"];
-            jumpAction = actions["Jump"];
-            runAction = actions["Run"];
-            attackAction = actions["Attack"];
-            cycleAction = actions["CycleWeapon"];
-        }
+        if (actions == null) return;
+        
+        moveXAction = actions["MoveX"];
+        moveYAction = actions["MoveY"];
+        lookAction = actions["Look"];
+        jumpAction = actions["Jump"];
+        runAction = actions["Run"];
+        attackAction = actions["Attack"];
+        cycleAction = actions["CycleWeapon"];
     }
 
     private void OnEnable()
     {
-        if (moveAction != null) moveAction.performed += OnMove;
+        if (moveXAction != null) moveXAction.performed += OnMoveX;
+        if (moveYAction != null) moveYAction.performed += OnMoveY;
         if (lookAction != null) lookAction.performed += OnLook;
         if (lookAction != null) lookAction.canceled += OnLook;
         if (jumpAction != null) jumpAction.performed += OnJump;
@@ -60,7 +64,8 @@ public class InputManager : MonoBehaviour
 
     private void OnDisable()
     {
-        if (moveAction != null) moveAction.performed -= OnMove;
+        if (moveXAction != null) moveXAction.performed -= OnMoveX;
+        if (moveYAction != null) moveYAction.performed -= OnMoveY;
         if (lookAction != null) lookAction.performed -= OnLook;
         if (lookAction != null) lookAction.canceled -= OnLook;
         if (jumpAction != null) jumpAction.performed -= OnJump;
@@ -76,16 +81,22 @@ public class InputManager : MonoBehaviour
             RunHeld = runAction.IsPressed();
     }
 
-    private void OnMove(InputAction.CallbackContext ctx)
+    private void OnMoveX(InputAction.CallbackContext ctx)
     {
-        MoveInput = ctx.ReadValue<Vector2>();
-        OnMoveInput?.Invoke(MoveInput);
+        moveInput.x = ctx.ReadValue<float>();
+        OnMoveInput?.Invoke(moveInput);
+    }
+
+    private void OnMoveY(InputAction.CallbackContext ctx)
+    {
+        moveInput.y = ctx.ReadValue<float>();
+        OnMoveInput?.Invoke(moveInput);
     }
 
     private void OnLook(InputAction.CallbackContext ctx)
     {
-        LookInput = ctx.ReadValue<Vector2>();
-        OnLookInput?.Invoke(LookInput);
+        lookInput = ctx.ReadValue<Vector2>();
+        OnLookInput?.Invoke(lookInput);
     }
 
     private void OnJump(InputAction.CallbackContext ctx)
@@ -99,19 +110,16 @@ public class InputManager : MonoBehaviour
 
     private void OnAttack(InputAction.CallbackContext ctx)
     {
-        if (ctx.performed) WeaponManager.Instance?.HandleAttackInput();
+        if (ctx.performed)
+        {
+            var wm = GetComponent<WeaponManager>();
+            wm?.HandleAttackInput();
+        }
     }
 
     private void OnCycleWeaponAction(InputAction.CallbackContext ctx)
     {
         float scroll = ctx.ReadValue<float>();
         OnCycleWeapon?.Invoke(scroll);
-    }
-
-    public Vector2 ConsumeMoveInput()
-    {
-        var move = MoveInput;
-        MoveInput = Vector2.zero;
-        return move;
     }
 }

@@ -3,33 +3,26 @@
 ## Changes Made
 
 ### Phase 1: Fixed InputActions Asset ✓
-- `Assets/PlayerInputActions.inputactions` - Added `groups: "Keyboard&Mouse"` field to all bindings
-- Added proper control scheme for Keyboard&Mouse
-- Fixed composite binding format for WASD
+- `Assets/PlayerInputActions.inputactions` - Simplified to MoveX/MoveY/Look/Jump/Run/Attack/CycleWeapon
+- All bindings have `groups: "Keyboard&Mouse"` field
 
-### Phase 2: Unified GameManager Input ✓
-- `Assets/Scripts/Core/GameManager.cs` - Replaced legacy `Input.GetKeyDown(KeyCode.Escape)` with `Keyboard.current.escapeKey.wasPressedThisFrame`
+### Phase 2: Unified Input Architecture ✓
+- `Assets/Scripts/Core/InputManager.cs` - Callback-based pattern with events
+- All input handling consolidated to single MonoBehaviour
 
-### Phase 3: Refactored InputManager ✓
-- `Assets/Scripts/Core/InputManager.cs` - Converted to callback-based pattern:
-  - Implemented Input Action callbacks (OnMove, OnLook, OnJump, OnAttack, OnCycleWeaponAction)
-  - Exposed events: OnMoveInput, OnLookInput, OnJumpPressed, OnCycleWeapon
-  - Removed DontDestroyOnLoad (player-specific)
-  - Kept minimal RunHeld polling in LateUpdate
+### Phase 3: Consolidated SceneSetup ✓
+- Single `Tools > Setup Scene` menu item does everything
+- Creates player, world, UI, weapons in one click
+- Removed separate Create/Finalize scripts
 
-### Phase 4: Updated PlayerController ✓
-- `Assets/Scripts/Player/PlayerController.cs` - Subscribes to InputManager events
-- Fixed look input consumption (delta is now consumed once per frame)
+### Phase 4: Fixed GameManager ✓
+- Uses `Keyboard.current.escapeKey.wasPressedThisFrame` (Input System)
 
-### Phase 5: Updated WeaponManager ✓
-- `Assets/Scripts/Weapons/WeaponManager.cs` - Removed polling Update loop
-- Subscribes to OnCycleWeapon event
-- Added HandleAttackInput() for InputManager callback
+### Phase 5: Updated Player/Weapon Controllers ✓
+- Subscribes to InputManager events
+- WeaponManager has HandleAttackInput() method
 
-### Phase 6: Fixed SceneSetup ✓
-- `Assets/Editor/SceneSetup.cs` - Now loads existing InputActions asset instead of creating malformed one
-
-## Remaining: Scene Cleanup
-- Main.unity contains duplicate PlayerCamera/WeaponHolder objects from multiple setup runs
-- Requires manual cleanup in Unity Editor or scene rebuild
+## Usage
+1. `Tools > Setup Scene` - Complete scene setup in one click
+2. `Build > Build Windows (Standalone)` - Build the game
 

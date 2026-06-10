@@ -1,41 +1,52 @@
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public static class SceneSetup
 {
     [MenuItem("Tools/Setup Scene")]
-    public static void SetupMainScene()
+    public static void SetupScene()
     {
-        // Create camera
+        // Create a fresh scene (clears everything)
+        Scene newScene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene);
+        EditorSceneManager.SetActiveScene(newScene);
+
+        // Create camera with all components
         GameObject cameraObj = new GameObject("PlayerCamera");
-        Camera camera = cameraObj.AddComponent<Camera>();
-        camera.tag = "MainCamera";
+        Camera cam = cameraObj.AddComponent<Camera>();
+        cam.tag = "MainCamera";
         cameraObj.AddComponent<AudioListener>();
         cameraObj.AddComponent<CharacterController>();
         cameraObj.AddComponent<PlayerController>();
-        cameraObj.AddComponent<WeaponManager>();
-        cameraObj.AddComponent<InputManager>();
-
+        
+        // Add InputManager and PlayerInput
+        InputManager inputMgr = cameraObj.AddComponent<InputManager>();
         PlayerInput playerInput = cameraObj.AddComponent<PlayerInput>();
-        playerInput.actions = CreateInputActionsAsset();
-        playerInput.defaultScheme = "Keyboard&Mouse";
-        playerInput.defaultAction = "Move";
+        InputActionAsset actions = CreateInputActionsAsset();
+        if (actions != null) playerInput.actions = actions;
+        playerInput.defaultControlScheme = "Keyboard&Mouse";
+        playerInput.defaultActionMap = "Player";
+
+        // Add WeaponManager
+        WeaponManager wm = cameraObj.AddComponent<WeaponManager>();
 
         // Create WeaponHolder
         GameObject weaponHolder = new GameObject("WeaponHolder");
         weaponHolder.transform.SetParent(cameraObj.transform);
         weaponHolder.transform.localPosition = Vector3.zero;
+        wm.weaponHolder = weaponHolder.transform;
 
-        // Create Canvas
+        // Create Canvas UI
         GameObject canvasObj = new GameObject("Canvas");
         Canvas canvas = canvasObj.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvasObj.AddComponent<CanvasScaler>();
         canvasObj.AddComponent<GraphicRaycaster>();
 
-        // Crosshair - create procedural texture
+        // Crosshair
         Texture2D crosshairTexture = CreateCrosshairTexture();
         GameObject crosshairObj = new GameObject("Crosshair");
         Image crosshair = crosshairObj.AddComponent<Image>();
@@ -58,32 +69,35 @@ public static class SceneSetup
         weaponText.rectTransform.anchoredPosition = new Vector2(-10, -10);
         weaponText.rectTransform.sizeDelta = new Vector2(200, 30);
         weaponText.color = Color.white;
-
-        // Assign to WeaponManager
-        WeaponManager wm = cameraObj.GetComponent<WeaponManager>();
         wm.weaponNameText = weaponText;
-        wm.weaponHolder = weaponHolder.transform;
+
+        // Create directional light
+        GameObject lightObj = new GameObject("Directional Light");
+        Light light = lightObj.AddComponent<Light>();
+        light.type = LightType.Directional;
+        light.transform.rotation = Quaternion.Euler(50, -30, 0);
 
         // Create World
         GameObject worldObj = new GameObject("World");
-        worldObj.AddComponent<WorldGenerator>();
+        WorldGenerator wg = worldObj.AddComponent<WorldGenerator>();
+        wg.directionalLight = light;
 
-        // Create directional light
-        GameObject lightObj = GameObject.Find("Directional Light");
-        if (lightObj == null)
+        // Create weapons
+        WeaponBase[] weapons = CreateWeapons();
+        foreach (var weapon in weapons)
         {
-            lightObj = new GameObject("Directional Light");
-            Light light = lightObj.AddComponent<Light>();
-            light.type = LightType.Directional;
+            wm.weapons.Add(weapon);
+            weapon.gameObject.SetActive(false);
         }
 
-        WorldGenerator wg = worldObj.GetComponent<WorldGenerator>();
-        wg.directionalLight = lightObj.GetComponent<Light>();
+        if (wm.weapons.Count > 0)
+        {
+            wm.EquipWeapon(0);
+        }
 
-// Focus on camera
         Selection.activeGameObject = cameraObj;
-
-        Debug.Log("Scene setup complete! Run Create Weapon Prefabs next.");
+        EditorSceneManager.MarkSceneDirty(newScene);
+        Debug.Log("Scene setup complete!");
     }
 
     private static InputActionAsset CreateInputActionsAsset()
@@ -127,13 +141,14 @@ public static class SceneSetup
         return tex;
     }
 
-    [MenuItem("Tools/Create Weapon Prefabs")]
-    public static void CreateWeaponPrefabs()
+    private static WeaponBase[] CreateWeapons()
     {
-        // Create Ranged Weapon - LineRenderer is auto-added by RequireComponent
-        GameObject ranged = new GameObject("RangedWeapon");
-        ranged.AddComponent<RangedWeapon>();
-        LineRenderer lr = ranged.GetComponent<LineRenderer>();
+        WeaponBase[] weapons = new WeaponBase[2];
+
+        // Create Pistol
+        GameObject pistObj = new GameObject("Pistol");
+        RangedWeapon pistol = pistObj.AddComponent<RangedWeapon>();
+        LineRenderer lr = pistObj.GetComponent<LineRenderer>();
         if (lr != null)
         {
             lr.positionCount = 2;
@@ -142,68 +157,49 @@ public static class SceneSetup
             Material tracerMat = new Material(Shader.Find("Unlit/Color"));
             tracerMat.color = Color.yellow;
             lr.sharedMaterial = tracerMat;
-            AssetDatabase.CreateAsset(tracerMat, "Assets/TracerMaterial.mat");
         }
+        WeaponData pistolData = ScriptableObject.CreateInstance<WeaponData>();
+        pistolData.weaponName = "Pistol";
+        pistolData.type = WeaponType.Ranged;
+        pistolData.damage = 10f;
+        pistolData.range = 100f;
+        pistolData.attackRate = 4f;
+        pistolData.isAutomatic = false;
+        pistol.data = pistolData;
+        weapons[0] = pistol;
 
-        // Create Melee Weapon
-        GameObject melee = new GameObject("MeleeWeapon");
-        melee.AddComponent<MeleeWeapon>();
-        GameObject visual = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        visual.name = "Visual";
-        visual.transform.SetParent(melee.transform);
-        visual.transform.localPosition = new Vector3(0, 0, 1f);
-        visual.transform.localScale = new Vector3(0.1f, 0.3f, 0.05f);
-        Object.DestroyImmediate(visual.GetComponent<Collider>());
+        // Create Knife
+        GameObject knifeObj = new GameObject("Knife");
+        MeleeWeapon knife = knifeObj.AddComponent<MeleeWeapon>();
+        WeaponData knifeData = ScriptableObject.CreateInstance<WeaponData>();
+        knifeData.weaponName = "Knife";
+        knifeData.type = WeaponType.Melee;
+        knifeData.damage = 20f;
+        knifeData.range = 2f;
+        knifeData.attackRate = 2f;
+        knifeData.isAutomatic = false;
+        knife.data = knifeData;
+        weapons[1] = knife;
 
-        // Create WeaponData assets
-        WeaponData pistol = ScriptableObject.CreateInstance<WeaponData>();
-        pistol.weaponName = "Pistol";
-        pistol.type = WeaponType.Ranged;
-        pistol.damage = 10f;
-        pistol.range = 100f;
-        pistol.attackRate = 4f;
-        pistol.isAutomatic = false;
-        AssetDatabase.CreateAsset(pistol, "Assets/WeaponData_Pistol.asset");
-
-        WeaponData knife = ScriptableObject.CreateInstance<WeaponData>();
-        knife.weaponName = "Knife";
-        knife.type = WeaponType.Melee;
-        knife.damage = 20f;
-        knife.range = 2f;
-        knife.attackRate = 2f;
-        knife.isAutomatic = false;
-        AssetDatabase.CreateAsset(knife, "Assets/WeaponData_Knife.asset");
-
-        ranged.GetComponent<RangedWeapon>().data = pistol;
-        melee.GetComponent<MeleeWeapon>().data = knife;
-
-        PrefabUtility.SaveAsPrefabAsset(ranged, "Assets/Prefabs/RangedWeapon.prefab");
-        PrefabUtility.SaveAsPrefabAsset(melee, "Assets/Prefabs/MeleeWeapon.prefab");
-
-        Object.DestroyImmediate(ranged);
-        Object.DestroyImmediate(melee);
-
-        AssetDatabase.SaveAssets();
-        AssetDatabase.Refresh();
-
-        Debug.Log("Weapon prefabs created! Now run Finalize Scene.");
+        return weapons;
     }
 
-    [MenuItem("Tools/Finalize Scene")]
-    public static void FinalizeScene()
+    [MenuItem("Build/Build Windows (Standalone)")]
+    public static void BuildWindows()
     {
-        GameObject cameraObj = GameObject.Find("PlayerCamera");
-        if (cameraObj == null) return;
+        string[] scenes = FindEnabledEditorScenes();
+        string buildPath = "Builds/Windows/";
+        System.IO.Directory.CreateDirectory(buildPath);
+        BuildPipeline.BuildPlayer(scenes, buildPath + "FPSPrototype.exe", BuildTarget.StandaloneWindows64, BuildOptions.None);
+    }
 
-        WeaponManager wm = cameraObj.GetComponent<WeaponManager>();
-        if (wm == null) return;
-
-        GameObject rangedInstance = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/RangedWeapon.prefab"));
-        GameObject meleeInstance = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/MeleeWeapon.prefab"));
-
-        if (rangedInstance != null) wm.weapons.Add(rangedInstance.GetComponent<RangedWeapon>());
-        if (meleeInstance != null) wm.weapons.Add(meleeInstance.GetComponent<MeleeWeapon>());
-
-        Debug.Log("Weapons assigned!");
+    private static string[] FindEnabledEditorScenes()
+    {
+        string[] scenes = new string[EditorBuildSettings.scenes.Length];
+        for (int i = 0; i < scenes.Length; i++)
+        {
+            scenes[i] = EditorBuildSettings.scenes[i].path;
+        }
+        return scenes;
     }
 }

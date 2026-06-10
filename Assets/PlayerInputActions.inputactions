@@ -7,10 +7,19 @@
             "id": "8a039382-9263-469e-aada-6bdee8a2561e",
             "actions": [
                 {
-                    "name": "Move",
+                    "name": "MoveX",
                     "type": "Value",
                     "id": "7ed9b035-6abf-4f07-a71b-fdc105176d91",
-                    "expectedControlType": "Vector2",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "MoveY",
+                    "type": "Value",
+                    "id": "e7122566-5991-433f-b0ec-f45c9ed9d82d",
+                    "expectedControlType": "Axis",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
@@ -18,7 +27,7 @@
                 {
                     "name": "Look",
                     "type": "Value",
-                    "id": "e7122566-5991-433f-b0ec-f45c9ed9d82d",
+                    "id": "2191d8fb-edf6-41c6-8d12-9b0795e98506",
                     "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
@@ -27,8 +36,8 @@
                 {
                     "name": "Jump",
                     "type": "Button",
-                    "id": "2191d8fb-edf6-41c6-8d12-9b0795e98506",
-                    "expectedControlType": "",
+                    "id": "fbbaf7f8-8a5b-42d4-b755-3f3dac6c1625",
+                    "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -36,8 +45,8 @@
                 {
                     "name": "Run",
                     "type": "Button",
-                    "id": "fbbaf7f8-8a5b-42d4-b755-3f3dac6c1625",
-                    "expectedControlType": "",
+                    "id": "ac1a83fc-f8a8-4fb7-ad67-64fb0f5c16ef",
+                    "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -45,8 +54,8 @@
                 {
                     "name": "Attack",
                     "type": "Button",
-                    "id": "ac1a83fc-f8a8-4fb7-ad67-64fb0f5c16ef",
-                    "expectedControlType": "",
+                    "id": "c581c3a7-7d07-4cbf-adfa-f5dba1f02b63",
+                    "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -54,7 +63,7 @@
                 {
                     "name": "CycleWeapon",
                     "type": "Value",
-                    "id": "c581c3a7-7d07-4cbf-adfa-f5dba1f02b63",
+                    "id": "d7a3c4d5-e6f7-8a9b-0c1d-2e3f4a5b6c7d",
                     "expectedControlType": "Axis",
                     "processors": "",
                     "interactions": "",
@@ -63,59 +72,48 @@
             ],
             "bindings": [
                 {
-                    "name": "WASD",
-                    "id": "3f1701d3-6808-48ff-9a93-bb989b14759b",
-                    "path": "",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "Move",
-                    "isComposite": true,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "w",
-                    "id": "a1b2c3d4-1111-2222-3333-444455556661",
-                    "path": "<Keyboard>/w",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "s",
-                    "id": "a1b2c3d4-1111-2222-3333-444455556662",
-                    "path": "<Keyboard>/s",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "a",
-                    "id": "a1b2c3d4-1111-2222-3333-444455556663",
-                    "path": "<Keyboard>/a",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
                     "name": "d",
-                    "id": "a1b2c3d4-1111-2222-3333-444455556664",
+                    "id": "a1b2c3d4-1111-2222-3333-444455556661",
                     "path": "<Keyboard>/d",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
-                    "action": "Move",
+                    "action": "MoveX",
                     "isComposite": false,
-                    "isPartOfComposite": true
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "a",
+                    "id": "a1b2c3d4-1111-2222-3333-444455556662",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "MoveX",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "w",
+                    "id": "a1b2c3d4-1111-2222-3333-444455556663",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "MoveY",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "s",
+                    "id": "a1b2c3d4-1111-2222-3333-444455556664",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "MoveY",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 },
                 {
                     "name": "",
@@ -179,9 +177,8 @@
         {
             "name": "Keyboard&Mouse",
             "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-            "dataSource": "",
-            "support": 0,
-            "entities": []
+            "dataSource": "Bindings",
+            "support": 0
         }
     ]
 }
