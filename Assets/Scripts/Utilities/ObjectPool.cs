@@ -1,60 +1,32 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ObjectPool : MonoBehaviour
+public static class ObjectPool
 {
-    public static ObjectPool Instance { get; private set; }
+    private static readonly Dictionary<GameObject, Queue<GameObject>> pool = new Dictionary<GameObject, Queue<GameObject>>();
 
-    private Dictionary<GameObject, Queue<GameObject>> poolDictionary;
-
-    private void Awake()
+    public static GameObject Get(GameObject prefab, Vector3 position, Quaternion rotation)
     {
-        if (Instance != null && Instance != this)
+        if (!pool.TryGetValue(prefab, out Queue<GameObject> prefabPool) || prefabPool.Count == 0)
         {
-            Destroy(gameObject);
-            return;
-        }
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
-
-        poolDictionary = new Dictionary<GameObject, Queue<GameObject>>();
-    }
-
-    public GameObject GetObject(GameObject prefab, Vector3 position, Quaternion rotation)
-    {
-        if (!poolDictionary.ContainsKey(prefab))
-        {
-            poolDictionary[prefab] = new Queue<GameObject>();
+            return Object.Instantiate(prefab, position, rotation);
         }
 
-        if (poolDictionary[prefab].Count == 0)
-        {
-            GameObject newObj = Instantiate(prefab, position, rotation);
-            newObj.SetActive(true);
-            return newObj;
-        }
-
-        GameObject obj = poolDictionary[prefab].Dequeue();
+        GameObject obj = prefabPool.Dequeue();
         obj.SetActive(true);
         obj.transform.SetPositionAndRotation(position, rotation);
         return obj;
     }
 
-    public void ReturnObject(GameObject prefab, GameObject obj, float delay = 0f)
+    public static void Return(GameObject prefab, GameObject obj)
     {
-        if (!poolDictionary.ContainsKey(prefab))
+        if (!pool.TryGetValue(prefab, out Queue<GameObject> prefabPool))
         {
-            poolDictionary[prefab] = new Queue<GameObject>();
-            Destroy(obj);
+            Object.Destroy(obj);
             return;
         }
 
         obj.SetActive(false);
-        if (delay > 0f)
-        {
-            // For delayed return, we could use coroutine here
-            // For simplicity, immediate return
-        }
-        poolDictionary[prefab].Enqueue(obj);
+        prefabPool.Enqueue(obj);
     }
 }

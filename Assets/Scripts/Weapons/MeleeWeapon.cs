@@ -15,9 +15,7 @@ public class MeleeWeapon : WeaponBase
     private void Awake()
     {
         if (swingPoint == null)
-        {
             swingPoint = transform;
-        }
         initialRotation = swingPoint.localRotation;
         targetRotation = Quaternion.Euler(swingAngle, 0, 0);
     }
@@ -41,8 +39,6 @@ public class MeleeWeapon : WeaponBase
 
     protected override void PerformAttack()
     {
-        if (data.type != WeaponType.Melee) return;
-
         if (isSwinging) return;
 
         isSwinging = true;

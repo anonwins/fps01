@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviour
     public float maxLookAngle = 80f;
 
     private CharacterController controller;
+    private InputManager inputManager;
     private Vector3 velocity;
     private float currentLookAngleX = 0f;
     private bool isGrounded;
@@ -28,17 +29,16 @@ public class PlayerController : MonoBehaviour
     {
         controller = GetComponent<CharacterController>();
 
-        if (cameraTransform == null)
-        {
-            Camera mainCamera = Camera.main;
-            if (mainCamera != null)
-                cameraTransform = mainCamera.transform;
-        }
+        if (cameraTransform == null && Camera.main != null)
+            cameraTransform = Camera.main.transform;
 
-        var inputMgr = GetComponent<InputManager>();
-        inputMgr.OnMoveInput += HandleMoveInput;
-        inputMgr.OnLookInput += HandleLookInput;
-        inputMgr.OnJumpPressed += HandleJump;
+        inputManager = GetComponent<InputManager>();
+        if (inputManager != null)
+        {
+            inputManager.OnMoveInput += HandleMoveInput;
+            inputManager.OnLookInput += HandleLookInput;
+            inputManager.OnJumpPressed += HandleJump;
+        }
     }
 
     private void Update()
@@ -55,8 +55,7 @@ public class PlayerController : MonoBehaviour
         Vector3 move = new Vector3(moveInput.x, 0, moveInput.y);
         move = transform.TransformDirection(move);
 
-        var inputMgr = GetComponent<InputManager>();
-        float speed = moveSpeed * (inputMgr.RunHeld ? runMultiplier : 1f);
+        float speed = moveSpeed * (inputManager != null && inputManager.RunHeld ? runMultiplier : 1f);
         move *= speed;
 
         velocity.x = move.x;
@@ -76,8 +75,7 @@ public class PlayerController : MonoBehaviour
     {
         if (!cameraTransform) return;
 
-        bool canLook = GameManager.Instance.cursorLocked && !GameManager.Instance.isGamePaused;
-        if (!canLook)
+        if (GameManager.Instance == null || !GameManager.Instance.cursorLocked || GameManager.Instance.isGamePaused)
         {
             lookInput = Vector2.zero;
             return;
@@ -91,7 +89,6 @@ public class PlayerController : MonoBehaviour
             transform.Rotate(Vector3.up, delta.x * mouseSensitivity);
             currentLookAngleX -= delta.y * mouseSensitivity;
             currentLookAngleX = Mathf.Clamp(currentLookAngleX, minLookAngle, maxLookAngle);
-
             cameraTransform.localRotation = Quaternion.Euler(currentLookAngleX, 0, 0);
         }
     }

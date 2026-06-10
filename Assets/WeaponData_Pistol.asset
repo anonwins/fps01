@@ -21,4 +21,3 @@ MonoBehaviour:
   hitLayers:
     serializedVersion: 2
     m_Bits: 1
-  visualDuration: 0.2

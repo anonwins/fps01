@@ -3,7 +3,6 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 
 public static class SceneSetup
 {
@@ -17,8 +16,12 @@ public static class SceneSetup
         // Create camera with all components
         GameObject cameraObj = new GameObject("PlayerCamera");
         Camera cam = cameraObj.AddComponent<Camera>();
-        cam.tag = "MainCamera";
+        cameraObj.tag = "MainCamera";
         cameraObj.AddComponent<AudioListener>();
+        cam.clearFlags = CameraClearFlags.SolidColor;
+        cam.backgroundColor = Color.black;
+        cam.fieldOfView = 60f;
+        cam.enabled = true;
         cameraObj.AddComponent<PlayerController>();
 
         // Add InputManager (auto-adds CharacterController and PlayerInput via RequireComponent)
@@ -85,17 +88,8 @@ public static class SceneSetup
         wg.directionalLight = light;
 
         // Create weapons
-        WeaponBase[] weapons = CreateWeapons();
-        foreach (var weapon in weapons)
-        {
-            wm.weapons.Add(weapon);
-            weapon.gameObject.SetActive(false);
-        }
-
-        if (wm.weapons.Count > 0)
-        {
-            wm.EquipWeapon(0);
-        }
+        CreateWeapon<RangedWeapon>("Pistol", WeaponType.Ranged, 10f, 100f, 4f, wm);
+        CreateWeapon<MeleeWeapon>("Knife", WeaponType.Melee, 20f, 2f, 2f, wm);
 
         Selection.activeGameObject = cameraObj;
         EditorSceneManager.MarkSceneDirty(newScene);
@@ -143,49 +137,6 @@ public static class SceneSetup
         return tex;
     }
 
-    private static WeaponBase[] CreateWeapons()
-    {
-        WeaponBase[] weapons = new WeaponBase[2];
-
-        // Create Pistol
-        GameObject pistObj = new GameObject("Pistol");
-        RangedWeapon pistol = pistObj.AddComponent<RangedWeapon>();
-        LineRenderer lr = pistObj.GetComponent<LineRenderer>();
-        if (lr != null)
-        {
-            lr.positionCount = 2;
-            lr.startWidth = 0.05f;
-            lr.endWidth = 0.05f;
-            Material tracerMat = new Material(Shader.Find("Unlit/Color"));
-            tracerMat.color = Color.yellow;
-            lr.sharedMaterial = tracerMat;
-        }
-        WeaponData pistolData = ScriptableObject.CreateInstance<WeaponData>();
-        pistolData.weaponName = "Pistol";
-        pistolData.type = WeaponType.Ranged;
-        pistolData.damage = 10f;
-        pistolData.range = 100f;
-        pistolData.attackRate = 4f;
-        pistolData.isAutomatic = false;
-        pistol.data = pistolData;
-        weapons[0] = pistol;
-
-        // Create Knife
-        GameObject knifeObj = new GameObject("Knife");
-        MeleeWeapon knife = knifeObj.AddComponent<MeleeWeapon>();
-        WeaponData knifeData = ScriptableObject.CreateInstance<WeaponData>();
-        knifeData.weaponName = "Knife";
-        knifeData.type = WeaponType.Melee;
-        knifeData.damage = 20f;
-        knifeData.range = 2f;
-        knifeData.attackRate = 2f;
-        knifeData.isAutomatic = false;
-        knife.data = knifeData;
-        weapons[1] = knife;
-
-        return weapons;
-    }
-
     [MenuItem("Build/Build Windows (Standalone)")]
     public static void BuildWindows()
     {
@@ -197,11 +148,24 @@ public static class SceneSetup
 
     private static string[] FindEnabledEditorScenes()
     {
-        string[] scenes = new string[EditorBuildSettings.scenes.Length];
-        for (int i = 0; i < scenes.Length; i++)
-        {
-            scenes[i] = EditorBuildSettings.scenes[i].path;
-        }
-        return scenes;
+        var scenePaths = new string[EditorBuildSettings.scenes.Length];
+        for (int i = 0; i < scenePaths.Length; i++)
+            scenePaths[i] = EditorBuildSettings.scenes[i].path;
+        return scenePaths;
+    }
+
+    private static void CreateWeapon<T>(string name, WeaponType type, float damage, float range, float attackRate, WeaponManager wm) where T : WeaponBase
+    {
+        GameObject obj = new GameObject(name);
+        T weapon = obj.AddComponent<T>();
+        
+        var data = ScriptableObject.CreateInstance<WeaponData>();
+        data.weaponName = name;
+        data.type = type;
+        data.damage = damage;
+        data.range = range;
+        data.attackRate = attackRate;
+        weapon.data = data;
+        wm.weapons.Add(weapon);
     }
 }

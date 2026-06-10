@@ -4,13 +4,11 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(PlayerInput))]
 public class InputManager : MonoBehaviour
 {
-    public static InputManager Instance { get; private set; }
-
     private Vector2 moveInput = Vector2.zero;
     public Vector2 MoveInput => moveInput;
     private Vector2 lookInput = Vector2.zero;
     public Vector2 LookInput => lookInput;
-    public bool RunHeld { get; private set; } = false;
+    public bool RunHeld { get; private set; }
 
     public event System.Action<Vector2> OnMoveInput;
     public event System.Action<Vector2> OnLookInput;
@@ -28,13 +26,6 @@ public class InputManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-        Instance = this;
-
         playerInput = GetComponent<PlayerInput>();
         
         var actions = playerInput.actions;
@@ -56,8 +47,6 @@ public class InputManager : MonoBehaviour
         if (lookAction != null) lookAction.performed += OnLook;
         if (lookAction != null) lookAction.canceled += OnLook;
         if (jumpAction != null) jumpAction.performed += OnJump;
-        if (runAction != null) runAction.performed += OnRun;
-        if (runAction != null) runAction.canceled += OnRun;
         if (attackAction != null) attackAction.performed += OnAttack;
         if (cycleAction != null) cycleAction.performed += OnCycleWeaponAction;
     }
@@ -69,16 +58,13 @@ public class InputManager : MonoBehaviour
         if (lookAction != null) lookAction.performed -= OnLook;
         if (lookAction != null) lookAction.canceled -= OnLook;
         if (jumpAction != null) jumpAction.performed -= OnJump;
-        if (runAction != null) runAction.performed -= OnRun;
-        if (runAction != null) runAction.canceled -= OnRun;
         if (attackAction != null) attackAction.performed -= OnAttack;
         if (cycleAction != null) cycleAction.performed -= OnCycleWeaponAction;
     }
 
     private void LateUpdate()
     {
-        if (runAction != null)
-            RunHeld = runAction.IsPressed();
+        RunHeld = runAction?.IsPressed() == true;
     }
 
     private void OnMoveX(InputAction.CallbackContext ctx)
@@ -104,16 +90,11 @@ public class InputManager : MonoBehaviour
         if (ctx.performed) OnJumpPressed?.Invoke();
     }
 
-    private void OnRun(InputAction.CallbackContext ctx)
-    {
-    }
-
     private void OnAttack(InputAction.CallbackContext ctx)
     {
         if (ctx.performed)
         {
-            var wm = GetComponent<WeaponManager>();
-            wm?.HandleAttackInput();
+            GetComponent<WeaponManager>()?.HandleAttackInput();
         }
     }
 

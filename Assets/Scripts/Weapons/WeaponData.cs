@@ -15,6 +15,5 @@ public class WeaponData : ScriptableObject
     public float range = 100f;
     public float attackRate = 1f;
     public bool isAutomatic = false;
-    public LayerMask hitLayers = 1; // Default layer
-    public float visualDuration = 0.2f;
+    public LayerMask hitLayers = 1;
 }

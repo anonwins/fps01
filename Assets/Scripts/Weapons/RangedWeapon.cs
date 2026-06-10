@@ -21,7 +21,7 @@ public class RangedWeapon : WeaponBase
 
     protected override void PerformAttack()
     {
-        if (data.type != WeaponType.Ranged) return;
+        if (playerCamera == null) return;
 
         Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         RaycastHit hit;
@@ -51,7 +51,6 @@ public class RangedWeapon : WeaponBase
         lineRenderer.SetPosition(0, start);
         lineRenderer.SetPosition(1, end);
         lineRenderer.enabled = true;
-
         Invoke(nameof(HideTracer), tracerDuration);
     }
 
