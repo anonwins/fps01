@@ -19,16 +19,18 @@ public static class SceneSetup
         Camera cam = cameraObj.AddComponent<Camera>();
         cam.tag = "MainCamera";
         cameraObj.AddComponent<AudioListener>();
-        cameraObj.AddComponent<CharacterController>();
         cameraObj.AddComponent<PlayerController>();
-        
-        // Add InputManager and PlayerInput
+
+        // Add InputManager (auto-adds CharacterController and PlayerInput via RequireComponent)
         InputManager inputMgr = cameraObj.AddComponent<InputManager>();
-        PlayerInput playerInput = cameraObj.AddComponent<PlayerInput>();
+        PlayerInput playerInput = cameraObj.GetComponent<PlayerInput>();
         InputActionAsset actions = CreateInputActionsAsset();
-        if (actions != null) playerInput.actions = actions;
-        playerInput.defaultControlScheme = "Keyboard&Mouse";
-        playerInput.defaultActionMap = "Player";
+        if (actions != null && playerInput != null)
+        {
+            playerInput.actions = actions;
+            playerInput.defaultControlScheme = "Keyboard&Mouse";
+            playerInput.defaultActionMap = "Player";
+        }
 
         // Add WeaponManager
         WeaponManager wm = cameraObj.AddComponent<WeaponManager>();
